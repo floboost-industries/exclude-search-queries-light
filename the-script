@@ -1,0 +1,21 @@
+var queryString = '"your brand name"'; // your brand name, or a part of it
+var impressions = 20; // threshold on impressions
+var clicks = 1; // threshold on clicks
+var listName = "non branded terms matched in shopping"; // your own created negative keyword list
+var campaignName = "nl | (nl) | b | shop | low-priority branded | CPC"; // to check queries in
+
+function main() {
+var searchQueryReport = AdWordsApp.report(
+    'SELECT Query,Clicks,Impressions,Cost ' +
+    'FROM SEARCH_QUERY_PERFORMANCE_REPORT ' +
+    'WHERE CampaignName = "' + campaignName + '" AND Clicks >= ' + clicks + ' AND Impressions >= ' + impressions + ' AND Query DOES_NOT_CONTAIN_IGNORE_CASE ' + queryString + ' ' +
+    'DURING ALL_TIME'); 
+
+    var negativeKeywordList = AdWordsApp.negativeKeywordLists().withCondition('Name = "' + listName + '"').get().next();
+  
+var rows = searchQueryReport.rows();
+while (rows.hasNext()) {
+    var row = rows.next();
+    negativeKeywordList.addNegativeKeyword("[" + row.Query + "]");
+  }
+}
